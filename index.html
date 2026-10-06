@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>استراتيجية القوى العظمى</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+    body { background-color: #0b1118; color: #e6edf3; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+    /* الشاشة 1: الصفحة الرئيسية */
+    .screen { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background: #0b1118; }
+    .screen.active { display: flex; }
+
+    /* الشريط العلوي */
+    .top-bar { background: #121922; border-bottom: 2px solid #1f2937; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
+    .user-info { display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 40px; height: 40px; background: #2563eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .gold-box { background: linear-gradient(135deg, #d97706, #f59e0b); padding: 5px 12px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; color: #fff; }
+
+    /* المحتوى الرئيسي للرئيسية */
+    .main-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; gap: 20px; }
+    .game-title { font-size: 2rem; font-weight: 900; color: #60a5fa; text-shadow: 0 0 10px rgba(96, 165, 250, 0.5); }
+    .btn-primary { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; padding: 16px 32px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; width: 100%; max-width: 300px; cursor: pointer; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4); transition: transform 0.1s; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    /* الشاشة 2: اختيار الأطوار */
+    .header-nav { background: #121922; padding: 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1f2937; }
+    .btn-back { background: #374151; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }
+    .list-container { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+    .mode-card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+    .mode-title { font-size: 1rem; font-weight: bold; color: #f8fafc; margin-bottom: 4px; }
+    .mode-desc { font-size: 0.8rem; color: #94a3b8; }
+    .btn-join { background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+    /* الشاشة 3: اختيار الدولة */
+    .country-item { background: #1e293b; border: 1px solid #334155; padding: 12px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .country-item.selected { border-color: #22c55e; background: #064e3b; }
+    .flag-name { display: flex; align-items: center; gap: 10px; font-weight: bold; }
+
+    /* الشريط السفلي */
+    .bottom-nav { background: #0f172a; border-top: 1px solid #1f2937; display: flex; justify-content: space-around; padding: 10px 0; font-size: 0.75rem; color: #94a3b8; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
+    .nav-item.active { color: #60a5fa; }
+  </style>
+</head>
+<body>
+
+  <!-- الشاشة 1: الواجهة الرئيسية -->
+  <div id="screen-main" class="screen active">
+    <div class="top-bar">
+      <div class="user-info">
+        <div class="avatar">F</div>
+        <div>
+          <div style="font-weight: bold; font-size: 0.9rem;">FOUADARFA</div>
+          <div style="font-size: 0.75rem; color: #94a3b8;">ضابط أول - المرتبة 35</div>
+        </div>
+      </div>
+      <div class="gold-box">🪙 3,485</div>
+    </div>
+
+    <div class="main-content">
+      <div class="game-title">الجنرال<br><span style="font-size: 1rem; color: #94a3b8;">الحرب العالمية</span></div>
+      <button class="btn-primary" onclick="showScreen('screen-modes')">البحث عن لعبة جديدة</button>
+    </div>
+
+    <div class="bottom-nav">
+      <div class="nav-item active">👤 الملف الشخصي</div>
+      <div class="nav-item">⚔️ الألعاب</div>
+      <div class="nav-item">🛒 المتجر</div>
+      <div class="nav-item">⚙️ المزيد</div>
+    </div>
+  </div>
+
+  <!-- الشاشة 2: اختيار الطور -->
+  <div id="screen-modes" class="screen">
+    <div class="header-nav">
+      <button class="btn-back" onclick="showScreen('screen-main')">❮ العودة</button>
+      <div style="font-weight: bold;">اختر طور اللعب</div>
+      <div style="width: 50px;"></div>
+    </div>
+
+    <div class="list-container">
+      <div class="mode-card">
+        <div>
+          <div class="mode-title">الحرب العالمية الثالثة (السرعة 4x)</div>
+          <div class="mode-desc">64 لاعب • خادم #10923510</div>
+        </div>
+        <button class="btn-join" onclick="showScreen('screen-nations')">انضمام</button>
+      </div>
+
+      <div class="mode-card">
+        <div>
+          <div class="mode-title">التدمير الجنوني</div>
+          <div class="mode-desc">100 لاعب • خادم #10923503</div>
+        </div>
+        <button class="btn-join" onclick="showScreen('screen-nations')">انضمام</button>
+      </div>
+
+      <div class="mode-card">
+        <div>
+          <div class="mode-title">نزاع الشرق الأوسط</div>
+          <div class="mode-desc">32 لاعب • خادم #10923599</div>
+        </div>
+        <button class="btn-join" onclick="showScreen('screen-nations')">انضمام</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- الشاشة 3: اختيار الدولة -->
+  <div id="screen-nations" class="screen">
+    <div class="header-nav">
+      <button class="btn-back" onclick="showScreen('screen-modes')">❮ العودة</button>
+      <div style="font-weight: bold;">اختر الدولة</div>
+      <div style="width: 50px;"></div>
+    </div>
+
+    <div class="list-container">
+      <div class="country-item" onclick="selectCountry(this)">
+        <div class="flag-name">🇦🇷 الأرجنتين</div>
+        <span style="color: #22c55e; font-size: 0.8rem;">متاحة</span>
+      </div>
+
+      <div class="country-item" onclick="selectCountry(this)">
+        <div class="flag-name">🇸🇪 السويد</div>
+        <span style="color: #22c55e; font-size: 0.8rem;">متاحة</span>
+      </div>
+
+      <div class="country-item" onclick="selectCountry(this)">
+        <div class="flag-name">🇲🇽 المكسيك</div>
+        <span style="color: #22c55e; font-size: 0.8rem;">متاحة</span>
+      </div>
+
+      <div class="country-item" onclick="selectCountry(this)">
+        <div class="flag-name">🇧🇷 البرازيل</div>
+        <span style="color: #22c55e; font-size: 0.8rem;">متاحة</span>
+      </div>
+    </div>
+
+    <div style="padding: 15px; background: #121922; border-top: 1px solid #1f2937;">
+      <button id="btn-start-game" class="btn-primary" style="width: 100%; opacity: 0.5;" disabled onclick="enterMap()">موافق (بدء اللعب)</button>
+    </div>
+  </div>
+
+  <script>
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function selectCountry(element) {
+      document.querySelectorAll('.country-item').forEach(c => c.classList.remove('selected'));
+      element.classList.add('selected');
+      const startBtn = document.getElementById('btn-start-game');
+      startBtn.disabled = false;
+      startBtn.style.opacity = '1';
+    }
+
+    function enterMap() {
+      alert('سيتم إدخالك الخريطة التفاعلية في المرحلة الثانية!');
+    }
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>استراتيجية القوى العظمى - الخريطة</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+    body { background-color: #080d14; color: #e6edf3; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+    /* شريط الموارد العلوي المتقدم */
+    #top-bar { background: #0f172a; border-bottom: 2px solid #1e293b; padding: 6px 10px; display: flex; flex-direction: column; gap: 4px; z-index: 20; }
+    .top-info { display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; font-weight: bold; }
+    .res-bar { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px; }
+    .res-item { background: #1e293b; border: 1px solid #334155; border-radius: 4px; padding: 3px 6px; font-size: 0.7rem; font-weight: bold; white-space: nowrap; display: flex; align-items: center; gap: 3px; }
+    .gold-item { background: linear-gradient(135deg, #d97706, #f59e0b); color: #fff; border: none; }
+
+    /* منطقة الخريطة التفاعلية */
+    #map-container { flex: 1; position: relative; background: #071527; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    svg { width: 100%; height: 100%; }
+
+    /* المحافظات والحدود */
+    .province { fill: #1e293b; stroke: #475569; stroke-width: 1.5; cursor: pointer; transition: all 0.2s; }
+    .province.player { fill: #15803d; stroke: #22c55e; } /* الأرجنتين (اللاعب) */
+    .province.enemy-war { fill: #991b1b; stroke: #ef4444; } /* إعلان الحرب (أحمر) */
+    .province.neutral { fill: #334155; stroke: #64748b; }
+
+    /* الطرق والمسارات البحرية */
+    .road-network { stroke: rgba(255, 255, 255, 0.4); stroke-width: 1; stroke-dasharray: 3, 3; fill: none; }
+    .sea-lane { stroke: #38bdf8; stroke-width: 1; stroke-dasharray: 4, 4; opacity: 0.6; fill: none; }
+
+    /* العناصر على الخريطة (مدن، جيوش، مطارات) */
+    .city-label { fill: #ffffff; font-size: 10px; font-weight: bold; text-anchor: middle; pointer-events: none; text-shadow: 0 0 3px #000; }
+    .unit-badge { fill: #22c55e; stroke: #ffffff; stroke-width: 1; cursor: pointer; }
+    .unit-text { fill: #ffffff; font-size: 9px; font-weight: bold; text-anchor: middle; pointer-events: none; }
+    .icon-symbol { font-size: 12px; pointer-events: none; text-anchor: middle; }
+
+    /* الشريط السفلي للتحكم */
+    #bottom-bar { background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 8px 0; z-index: 20; }
+    .nav-btn { background: none; border: none; color: #94a3b8; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+    .nav-btn.active { color: #38bdf8; font-weight: bold; }
+    .badge-count { background: #ef4444; color: white; border-radius: 10px; padding: 1px 5px; font-size: 0.65rem; margin-top: -15px; margin-right: 12px; position: absolute; }
+
+    /* لوحة الأوامر الدبلوماسية والعسكرية */
+    #action-panel { position: absolute; bottom: 60px; left: 10px; right: 10px; background: rgba(15, 23, 42, 0.95); border: 1px solid #334155; border-radius: 8px; padding: 10px; display: none; flex-direction: column; gap: 8px; z-index: 30; backdrop-filter: blur(5
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>استراتيجية القوى العظمى - النظام المتقدم</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+    body { background-color: #080d14; color: #e6edf3; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+    /* شريط الموارد العلوي المتقدم */
+    #top-bar { background: #0f172a; border-bottom: 2px solid #1e293b; padding: 6px 10px; display: flex; flex-direction: column; gap: 4px; z-index: 20; }
+    .top-info { display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; font-weight: bold; }
+    .res-bar { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px; }
+    .res-item { background: #1e293b; border: 1px solid #334155; border-radius: 4px; padding: 3px 6px; font-size: 0.7rem; font-weight: bold; white-space: nowrap; display: flex; align-items: center; gap: 3px; }
+    .gold-item { background: linear-gradient(135deg, #d97706, #f59e0b); color: #fff; border: none; }
+
+    /* منطقة الخريطة التفاعلية */
+    #map-container { flex: 1; position: relative; background: #071527; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    svg { width: 100%; height: 100%; }
+
+    .province { fill: #1e293b; stroke: #475569; stroke-width: 1.5; cursor: pointer; transition: all 0.2s; }
+    .province.player { fill: #15803d; stroke: #22c55e; }
+    .province.enemy-war { fill: #991b1b; stroke: #ef4444; }
+    .province.neutral { fill: #334155; stroke: #64748b; }
+
+    .road-network { stroke: rgba(255, 255, 255, 0.4); stroke-width: 1; stroke-dasharray: 3, 3; fill: none; }
+    .sea-lane { stroke: #38bdf8; stroke-width: 1; stroke-dasharray: 4, 4; opacity: 0.6; fill: none; }
+
+    .city-label { fill: #ffffff; font-size: 10px; font-weight: bold; text-anchor: middle; pointer-events: none; text-shadow: 0 0 3px #000; }
+    .unit-badge { fill: #22c55e; stroke: #ffffff; stroke-width: 1; cursor: pointer; }
+    .unit-text { fill: #ffffff; font-size: 9px; font-weight: bold; text-anchor: middle; pointer-events: none; }
+
+    /* النافذة المنبثقة للبناء والتجنيد (Modal) */
+    .modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(8, 13, 20, 0.92); z-index: 50; flex-direction: column; backdrop-filter: blur(4px); }
+    .modal.active { display: flex; }
+    .modal-header { background: #0f172a; padding: 12px 15px; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-weight: bold; font-size: 1rem; color: #38bdf8; }
+    .close-btn { background: #374151; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; }
+
+    .tab-bar { display: flex; background: #1e293b; border-bottom: 1px solid #334155; }
+    .tab-btn { flex: 1; padding: 10px 0; background: none; border: none; color: #94a3b8; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+    .tab-btn.active { color: #38bdf8; border-bottom: 2px solid #38bdf8; background: #0f172a; }
+
+    .modal-content { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+    .card-item { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .card-info { display: flex; flex-direction: column; gap: 3px; }
+    .card-title { font-weight: bold; font-size: 0.9rem; color: #f8fafc; }
+    .card-desc { font-size: 0.75rem; color: #94a3b8; }
+    .card-cost { font-size: 0.7rem; color: #f59e0b; font-weight: bold; }
+    .btn-action { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
+
+    /* الشريط السفلي للتحكم */
+    #bottom-bar { background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 8px 0; z-index: 20; }
+    .nav-btn { background: none; border: none; color: #94a3b8; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+    .nav-btn.active { color: #38bdf8; font-weight: bold; }
+
+    #action-panel { position: absolute; bottom: 60px; left: 10px; right: 10px; background: rgba(15, 23, 42, 0.95); border: 1px solid #334155; border-radius: 8px; padding: 10px; display: none; flex-direction: column; gap: 8px; z-index: 30; backdrop-filter: blur(5px); }
+    .btn-war { background: linear-gradient(135deg, #dc2626, #991b1b); color: white; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+    .btn-build { background: linear-gradient(135deg, #059669, #047857); color: white; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+
+  <!-- شريط الموارد العلوي المتقدم -->
+  <div id="top-bar">
+    <div class="top-info">
+      <span>🏆 VP 73/1850</span>
+      <span>⏰ 17:02 (اليوم 1)</span>
+      <span>👤 Fouadarfa 🇦🇷</span>
+    </div>
+    <div class="res-bar">
+      <div class="res-item gold-item">🪙 3,485</div>
+      <div class="res-item">💵 59k</div>
+      <div class="res-item">🪖 6.0k</div>
+      <div class="res-item">🔩 حديد: 12k</div>
+      <div class="res-item">🏗️ صلب: 8k</div>
+      <div class="res-item">🛢️ نفط: 6.0k</div>
+      <div class="res-item">☢️ يورانيوم: 1.2k</div>
+      <div class="res-item">⚡ كهرباء: +120</div>
+    </div>
+  </div>
+
+  <!-- الخريطة التفاعلية -->
+  <div id="map-container">
+    <svg viewBox="0 0 400 600" id="world-map">
+      <path class="sea-lane" d="M 50,550 L 200,450 L 350,500 L 350,300 M 200,450 L 200,200 L 350,100" />
+      <path class="road-network" d="M 140,480 L 180,410 L 220,330 L 180,250 M 180,410 L 250,420 M 220,330 L 270,320" />
+
+      <!-- بوينس آيرس -->
+      <path id="prov-buenos" class="province player" d="M 120,440 L 200,430 L 210,500 L 130,520 Z" onclick="selectProvince('بوينس آيرس', 'الأرجنتين', true, 'player')" />
+      <text x="165" y="470" class="city-label">بوينس آيرس (6)</text>
+
+      <!-- قرطبة -->
+      <path id="prov-cordoba" class="province player" d="M 130,370 L 210,360 L 200,430 L 120,440 Z" onclick="selectProvince('قرطبة', 'الأرجنتين', true, 'player')" />
+      <text x="165" y="400" class="city-label">قرطبة (5)</text>
+
+      <!-- سان ميغيل -->
+      <path id="prov-sanmiguel" class="province player" d="M 140,290 L 210,290 L 210,360 L 130,370 Z" onclick="selectProvince('سان ميغيل', 'الأرجنتين', true, 'player')" />
+      <text x="170" y="330" class="city-label">سان ميغيل (5)</text>
+
+      <!-- دول أخرى -->
+      <path id="prov-uruguay" class="province neutral" d="M 210,420 L 280,400 L 290,470 L 210,490 Z" onclick="selectProvince('مونتيفيديو', 'أوروغواي', false, 'neutral')" />
+      <text x="250" y="450" class="city-label">مونتيفيديو</text>
+
+      <g onclick="alert('كتيبة المشاة جاهزة للتحرك')">
+        <rect x="150" y="420" width="30" height="16" rx="3" class="unit-badge" />
+        <text x="165" y="432" class="unit-text">🪖 6</text>
+      </g>
+    </svg>
+
+    <!-- لوحة الأوامر -->
+    <div id="action-panel">
+      <div style="font-weight: bold; color: #38bdf8;" id="panel-prov-name">اسم المقاطعة</div>
+      <div id="panel-status" style="font-size: 0.8rem;">الحالة: أراضيك</div>
+      <button id="btn-open-build" class="btn-build" onclick="openModal('build')">🏗️ إنشاء مصانع ومناجم</button>
+      <button id="btn-open-recruit" class="btn-action" onclick="openModal('recruit')">🎖️ تجنيد وحدات وجيوش</button>
+      <button id="btn-declare-war" class="btn-war" style="display:none;" onclick="declareWar()">⚔️ إعلان الحرب</button>
+    </div>
+  </div>
+
+  <!-- النافذة المنبثقة للبناء والتجنيد -->
+  <div id="modal-box" class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">إدارة المدينة</div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-build-btn" onclick="switchTab('build')">المصانع والمناجم</button>
+      <button class="tab-btn" id="tab-recruit-btn" onclick="switchTab('recruit')">التجنيد العسكري</button>
+    </div>
+
+    <div class="modal-content" id="tab-build">
+      <!-- مصانع عسكرية وبنية تحتية -->
+      <div class="card-item">
+        <div class="card-info">
+          <div class="card-title">🏭 المصنع العسكري (إنشاءات)</div>
+          <div class="card-desc">يسمح ببناء وتسريع الآليات الثقيلة.</div>
+          <div class="card-cost">💵 1,500 | 🔩 حديد: 500</div>
+        </div>
+        <button class="btn-action" onclick="buildFacility('المصنع العسكري')">بناء</button>
+      </div>
+
+      <div class="card-item">
+        <div class="card-info">
+          <div class="card-title">⚡ محطة الكهرباء</div>
+          <div class="card-desc">تزيد سرعة الإنتاج والطاقة للمدينة.</div>
+          <div class="card-cost">💵 1,000 | 🏗️ صلب: 300</div>
+        </div>
+        <button class="btn-action" onclick="buildFacility('محطة الكهرباء')">بناء</button>
+      </div>
+
+      <div class="card-item">
+        <div class="card-info">
+          <div class="card-title">⛏️ منجم الحديد ومصنع الصلب</div>
+          <div class="card-desc">يزيد إنتاج الموارد المعدنية يومياً.</div>
+          <div class="card-cost">💵 800 | 🪖 عمال: 200</div>
+        </div>
+        <button class="btn-action" onclick="buildFacility('منجم الحديد والصلب')">بناء</button>
+      </div>
+
+      <div class="card-item">
+        <div class="card-info">
+          <div class="card-title">🛢️ مصفاة ومصنع النفط</div>
+          <div class="card-desc">استخراج وتكرير الوقود للمدرعات والطائرات.</div>
+          <div class="card-cost">💵 1,200 | 🏗️ صلب: 400</div>
+        </div>
+        <button class="btn-action" onclick="buildFacility('مصفاة النفط')">بناء</button>
+      </div>
+
+      <div class="card-item">
+        <div class="card-info">
+          <div class="card-title">🪙 منجم الذهب</div>
+          <div class="card-desc">يزيد الدخل المالي المباشر للمملكة.</div>
+          <div class="card-cost">💵 2,000 | 🔩 حديد: 600</div>
+        </div>
+        <button class="btn-action" onclick="buildFacility('منجم الذهب')">بناء</button>
+      </div>
+
+      <div class="card-item">
+        <div class="card-info">
+          <div class="card-title">☢️ منجم اليورانيوم</div>
+          <div class="card-desc">استخراج مواد المفاعل للأبحاث النووية.</div>
+          <div class="card-cost">💵 3,000 | ⚡ طاقة: 500</div>
+        </div>
+        <button class="btn-action" onclick="buildFacility('منجم اليورانيوم')">بناء</button>
+      </div>
+    </div>
+
+    <div class="modal-content" id="tab-recruit" style="display: none;">
+      <!-- القوات البرية، البحرية، والجوية -->
+      <div class="card-item">
+        <div class="card-info">
+          <div class="card-title">🪖 كتيبة المشاة</div>
+          <div class="card-desc">قوات برية أساسية للاستيلاء على المقاطعات.</div>
+          <div class="card-cost">💵 500 | 🪖 1,000 | ⏱️ 2 ساعة</div>
+        </div>
+        <button class="btn-action" onclick="recruitUnit('كتيبة المشاة')">تجنيد</button>
+      </div>
+
+      <div class="card-item">
+        <div class="card-info">
+          <div class="card-title">🚜 المدرعات والمشاة الآلية</div>
+          <div class="card-desc">سرعة عالية ودعم ناري خفيف.</div>
+          <div class="card-cost">💵 1,000 | 🛢️ 200 | ⏱️️ 4 ساعات</div>
+        </div>
+        <button class="btn-action" onclick="recruitUnit('المدرعات')">تجنيد</button>
+      </div>
+
+      <div class="card-item">
+        <div class="card-info">
+          <div class="card-title">🛡️ الدبابات الثقيلة</div>
+          <div class="card-desc">قوة تدميرية واختراق خطوط العدو.</div>
+          <
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>استراتيجية القوى العظمى - النظام الشامل</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+    body { background-color: #080d14; color: #e6edf3; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+    /* شريط الموارد والوقت العلوي */
+    #top-bar { background: rgba(15, 23, 42, 0.95); border-bottom: 2px solid #1e293b; padding: 6px 10px; display: flex; flex-direction: column; gap: 4px; z-index: 20; backdrop-filter: blur(5px); }
+    .top-info { display: flex; justify-content: space-between; font-size: 0.75rem; color: #38bdf8; font-weight: bold; }
+    .res-bar { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px; }
+    .res-item { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; border-radius: 4px; padding: 3px 6px; font-size: 0.7rem; font-weight: bold; white-space: nowrap; display: flex; align-items: center; gap: 3px; }
+    .gold-item { background: linear-gradient(135deg, #d97706, #f59e0b); color: #fff; border: none; }
+
+    /* منطقة الخريطة والتصاميم الواقعية */
+    #map-container { flex: 1; position: relative; background: #050b14 url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80') center/cover no-repeat; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    svg { width: 100%; height: 100%; background: rgba(5, 11, 20, 0.85); }
+
+    .province { fill: rgba(30, 41, 59, 0.7); stroke: #475569; stroke-width: 1.5; cursor: pointer; transition: all 0.3s; }
+    .province.player { fill: rgba(21, 128, 61, 0.75); stroke: #22c55e; }
+    .province.enemy-war { fill: rgba(153, 27, 27, 0.85); stroke: #ef4444; }
+    .province.neutral { fill: rgba(51, 65, 85, 0.7); stroke: #64748b; }
+
+    .road-network { stroke: rgba(255, 255, 255, 0.4); stroke-width: 1; stroke-dasharray: 3, 3; fill: none; }
+    .sea-lane { stroke: #38bdf8; stroke-width: 1; stroke-dasharray: 4, 4; opacity: 0.6; fill: none; }
+
+    .city-label { fill: #ffffff; font-size: 10px; font-weight: bold; text-anchor: middle; pointer-events: none; text-shadow: 0 0 4px #000; }
+    .unit-badge { fill: #22c55e; stroke: #ffffff; stroke-width: 1; cursor: pointer; }
+    .unit-text { fill: #ffffff; font-size: 9px; font-weight: bold; text-anchor: middle; pointer-events: none; }
+
+    /* النوافذ المنبثقة الواقعية */
+    .modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(8, 13, 20, 0.95); z-index: 50; flex-direction: column; backdrop-filter: blur(6px); }
+    .modal.active { display: flex; }
+    .modal-header { background: #0f172a; padding: 12px 15px; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-weight: bold; font-size: 1rem; color: #38bdf8; }
+    .close-btn { background: #374151; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; }
+
+    .tab-bar { display: flex; background: #1e293b; border-bottom: 1px solid #334155; }
+    .tab-btn { flex: 1; padding: 10px 0; background: none; border: none; color: #94a3b8; font-weight: bold; font-size: 0.8rem; cursor: pointer; }
+    .tab-btn.active { color: #38bdf8; border-bottom: 2px solid #38bdf8; background: #0f172a; }
+
+    .modal-content { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+    .card-item { background: rgba(30, 41, 59, 0.9); border: 1px solid #334155; border-radius: 8px; padding: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .card-img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; border: 1px solid #475569; }
+    .card-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .card-title { font-weight: bold; font-size: 0.85rem; color: #f8fafc; }
+    .card-desc { font-size: 0.7rem; color: #94a3b8; }
+    .card-cost { font-size: 0.68rem; color: #f59e0b; font-weight: bold; }
+    .btn-action { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
+
+    /* الشريط السفلي */
+    #bottom-bar { background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 8px 0; z-index: 20; }
+    .nav-btn { background: none; border: none; color: #94a3b8; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+    .nav-btn.active { color: #38bdf8; font-weight: bold; }
+
+    #action-panel { position: absolute; bottom: 60px; left: 10px; right: 10px; background: rgba(15, 23, 42, 0.95); border: 1px solid #334155; border-radius: 8px; padding: 10px; display: none; flex-direction: column; gap: 8px; z-index: 30; backdrop-filter: blur(5px); }
+    .btn-war { background: linear-gradient(135deg, #dc2626, #991b1b); color: white; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+    .btn-build { background: linear-gradient(135deg, #059669, #047857); color: white; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+
+  <!-- شريط الموارد والوقت التفاعلي -->
+  <div id="top-bar">
+    <div class="top-info">
+      <span id="game-day">📅 اليوم 1</span>
+      <span id="game-clock">⏰ 00:00</span>
+      <span>👤 Fouadarfa 🇦🇷</span>
+    </div>
+    <div class="res-bar">
+      <div class="res-item gold-item">🪙 <span id="res-gold">3,485</span></div>
+      <div class="res-item">💵 <span id="res-cash">59,000</span></div>
+      <div class="res-item">🪖 <span id="res-manpower">6,000</span></div>
+      <div class="res-item">🔩 حديد: <span id="res-iron">12,000</span></div>
+      <div class="res-item">🏗️ صلب: <span id="res-steel">8,000</span></div>
+      <div class="res-item">🛢️ نفط: <span id="res-oil">6,000</span></div>
+      <div class="res-item">☢️ يورانيوم: <span id="res-uranium">1,200</span></div>
+    </div>
+  </div>
+
+  <!-- الخريطة التفاعلية -->
+  <div id="map-container">
+    <svg viewBox="0 0 400 600" id="world-map">
+      <path class="sea-lane" d="M 50,550 L 200,450 L 350,500 L 350,300 M 200,450 L 200,200 L 350,100" />
+      <path class="road-network" d="M 140,480 L 180,410 L 220,330 L 180,250 M 180,410 L 250,420 M 220,330 L 270,320" />
+
+      <!-- بوينس آيرس -->
+      <path id="prov-buenos" class="province player" d="M 120,440 L 200,430 L 210,500 L 130,520 Z" onclick="selectProvince('بوينس آيرس', 'الأرجنتين', true)" />
+      <text x="165" y="470" class="city-label">بوينس آيرس (6)</text>
+
+      <!-- قرطبة -->
+      <path id="prov-cordoba" class="province player" d="M 130,370 L 210,360 L 200,430 L 120,440 Z" onclick="selectProvince('قرطبة', 'الأرجنتين', true)" />
+      <text x="165" y="400" class="city-label">قرطبة (5)</text>
+
+      <!-- سان ميغيل -->
+      <path id="prov-sanmiguel" class="province player" d="M 140,290 L 210,290 L 210,360 L 130,370 Z" onclick="selectProvince('سان ميغيل', 'الأرجنتين', true)" />
+      <text x="170" y="330" class="city-label">سان ميغيل (5)</text>
+
+      <!-- أوروغواي -->
+      <path id="prov-uruguay" class="province neutral" d="M 210,420 L 280,400 L 290,470 L 210,490 Z" onclick="selectProvince('مونتيفيديو', 'أوروغواي', false)" />
+      <text x="250" y="450" class="city-label">مونتيفيديو</text>
+
+      <g onclick="playSound('click'); alert('كتيبة المشاة جاهزة للتحرك')">
+        <rect x="150" y="420" width="30" height="16" rx="3" class="unit-badge" />
+        <text x="165" y="432" class="unit-text">🪖 6</text>
+      </g>
+    </svg>
+
+    <!-- لوحة الأوامر -->
+    <div id="action-panel">
+      <div style="font-weight: bold; color: #38bdf8;" id="panel-prov-name">اسم المقاطعة</div>
+      <div id="panel-status" style="font-size: 0.8rem;">الحالة: أراضيك</div>
+      <button id="btn-open-build" class="btn-build" onclick="openModal('build')">🏗️ إنشاء مصانع ومناجم</button>
+      <button id="btn-open-recruit" class="btn-action" onclick="openModal('recruit')">🎖️ تجنيد وحدات وجيوش</button>
+      <button id="btn-declare-war" class="btn-war" style="display:none;" onclick="declareWar()">⚔️️ إعلان الحرب</button>
+    </div>
+  </div>
+
+  <!-- النافذة المنبثقة للبناء والتجنيد صور واقعية -->
+  <div id="modal-box" class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">إدارة المدينة والإنتاج</div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-build-btn" onclick="switchTab('build')">المصانع والمناجم</button>
+      <button class="tab-btn" id="tab-recruit-btn" onclick="switchTab('recruit')">التجنيد العسكري</button>
+    </div>
+
+    <div class="modal-content" id="tab-build">
+      <div class="card-item">
+        <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=100&q=80" class="card-img" alt="مصنع">
+        <div class="card-info">
+          <div class="card-title">🏭 المصنع العسكري</div>
+          <div class="card-desc">بناء وتطوير الآليات العسكرية الثقيلة.</div>
+          <div class="card-cost">💵 1,500 | 🔩 500</div>
+        </div>
+        <button class="btn-action" onclick="buildFacility('المصنع العسكري', 1500, 500)">بناء</button>
+      </div>
+
+      <div class="card-item">
+        <img src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=100&q=80" class="card-img" alt="كهرباء">
+        <div class="card-info">
+          <div class="card-title">⚡ محطة الكهرباء</div>
+          <div class="card-desc">تسريع زمن البناء والتجنيد بالمدينة.</div>
+          <div class="card-cost">💵 1,000 | 🏗️ 300</div>
+        </div>
+        <button class="btn-action" onclick="buildFacility('محطة الكهرباء', 1000, 300)">بناء</button>
+      </div>
+
+      <div class="card-item">
+        <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=100&q=80" class="card-img" alt="نفط">
+        <div class="card-info">
+          <div class="card-title">🛢️ مصفاة النفط</div>
+          <div class="card-desc">إنتاج الوقود لتشغيل الدبابات والطائرات.</div>
+          <div class="card-cost">💵 1,200 | 🏗️ 400</div>
+        </div>
+        <button class="btn-action" onclick="buildFacility('مصفاة النفط', 1200, 400)">بناء</button>
+      </div>
+    </div>
+
+    <div class="modal-content" id="tab-recruit" style="display: none;">
+      <div class="card-item">
+        <img src="https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=100&q=80" class="card-img" alt="دبابات">
+        <div class="card-info">
+          <div class="card-title">🛡️ الدبابات الثقيلة</div>
+          <div class="card-desc">قوة تدميرية واختراق خطوط العدو.</div>
+          <div class="card-cost">💵 2,500 | 🏗️ 800</div>
+        </div>
+        <button class="btn-action" onclick="recruitUnit('الدبابات الثقيلة', 2500, 800)">تجنيد</button>
+      </div>
+
+      <div class="card-item">
+        <img src="https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=100&q=80" class="card-img" alt="طائرة">
+        <div class="card-info">
+          <div class="card-title">✈️ الطائرات المقاتلة</div>
+          <div class="card-desc">سيادة جوية وقصف استراتيجي.</div>
+          <div class="card-cost">💵 3,500 | 🛢️ 800</div>
+        </div>
+        <button class="btn-action" onclick="recruitUnit('الطائرات المقاتلة', 3500, 800)">تجنيد</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- الشريط السفلي -->
+  <div id="bottom-bar">
+    <button class="nav-btn" onclick="openModal('build')">🏙️ الإنشاءات</button>
+    <button class="nav-btn" onclick="openModal('recruit')">⚔️ القوات</button>
+    <button class="nav-btn" onclick="resetGameData()">🔄 إعادة ضبط الجيم</button>
+  </div>
+
+  <script>
+    // --- 1. محرك الصوت الرقمي (SFX) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'click') {
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+      } else if (type === 'build') {
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+      } else if (type === 'war') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+      }
+    }
+
+    // --- 2. بيانات اللعبة ونظام الحفظ (LocalStorage) ---
+    let gameState = {
+      day: 1,
+      minutes: 0,
+      hours: 0,
+      gold: 3485,
+      cash: 59000,
+      manpower: 6000,
+      iron: 12000,
+      steel: 8000,
+      oil: 6000,
+      uranium: 1200,
+      isWar: false
+    };
+
+    function loadGame() {
+      const saved = localStorage.getItem('general_game_save');
+      if (saved) {
+        gameState = JSON.parse(saved);
+        if (gameState.isWar) {
+          const uruguay = document.getElementById('prov-uruguay');
+          if (uruguay) {
+            uruguay.classList.remove('neutral');
+            uruguay.classList.add('enemy-war');
+          }
+        }
+      }
+      updateUI();
+    }
+
+    function saveGame() {
+      localStorage.setItem('general_game_save', JSON.stringify(gameState));
+    }
+
+    function resetGameData() {
+      if (confirm('هل تريد إعادة بدء اللعبة من الجديد؟')) {
+        localStorage.removeItem('general_game_save');
+        location.reload();
+      }
+    }
+
+    // --- 3. نظام الوقت داخل اللعبة (1 ثانية = 1 دقيقة) ---
+    setInterval(() => {
+      gameState.minutes++;
+      if (gameState.minutes >= 60) {
+        gameState.minutes = 0;
+        gameState.hours++;
+        // زيادة إنتاج الموارد كل ساعة داخل اللعبة
+        gameState.cash += 100;
+        gameState.oil += 10;
+      }
+      if (gameState.hours >= 24) {
+        gameState.hours = 0;
+        gameState.day++;
+      }
+      updateUI();
+      saveGame(); // حفظ تلقائي في المتصفح
+    }, 1000); // كل ثانية الحساب يتحدث
+
+    function updateUI() {
+      document.getElementById('game-day').textContent = `📅 اليوم ${gameState.day}`;
+      const h = gameState.hours < 10 ? '0' + gameState.hours : gameState.hours;
+      const m = gameState.minutes < 10 ? '0' + gameState.minutes : gameState.minutes;
+      document.getElementById('game-clock').textContent = `⏰ ${h}:${m}`;
+
+      document.getElementById('res-gold').textContent = gameState.gold.toLocaleString();
+      document.getElementById('res-cash').textContent = gameState.cash.toLocaleString();
+      document.getElementById('res-manpower').textContent = gameState.manpower.toLocaleString();
+      document.getElementById('res-iron').textContent = gameState.iron.toLocaleString();
+      document.getElementById('res-steel').textContent = gameState.steel.toLocaleString();
+      document.getElementById('res-oil').textContent = gameState.oil.toLocaleString();
+      document.getElementById('res-uranium').textContent = gameState.uranium.toLocaleString();
+    }
+
+    // --- 4. التحكم في المقاطعات والحرب ---
+    let selectedCountry = '';
+    function selectProvince(name, country, isPlayer) {
+      playSound('click');
+      selectedCountry = country;
+      const panel = document.getElementById('action-panel');
+      document.getElementById('panel-prov-name').textContent = `${name} (${country})`;
+
+      const warBtn = document.getElementById('btn-declare-war');
+      const buildBtn = document.getElementById('btn-open-build');
+      const recruitBtn = document.getElementById('btn-open-recruit');
+
+      if (isPlayer) {
+        document.getElementById('panel-status').textContent = "الحالة: أراضيك الوطنية 🇦🇷";
+        warBtn.style.display = 'none';
+        buildBtn.style.display = 'block';
+        recruitBtn.style.display = 'block';
+      } else {
+        document.getElementById('panel-status').textContent = gameState.isWar ? "الحالة: في حالة حرب! ⚔️" : "الحالة: دولة محايدة 🕊️";
+        warBtn.style.display = gameState.isWar ? 'none' : 'block';
+        buildBtn.style.display = 'none';
+        recruitBtn.style.display = 'none';
+      }
+      panel.style.display = 'flex';
+    }
+
+    function declareWar() {
+      playSound('war');
+      gameState.isWar = true;
+      const uruguay = document.getElementById('prov-uruguay');
+      uruguay.classList.remove('neutral');
+      uruguay.classList.add('enemy-war');
+      document.getElementById('panel-status').textContent = "الحالة: تم إعلان الحرب! ⚔️";
+      document.getElementById('btn-declare-war').style.display = 'none';
+      saveGame();
+      alert(`تم إعلان الحرب على ${selectedCountry}! تحولت المقاطعة للأحمر.`);
+    }
+
+    // --- 5. البناء والتجنيد ---
+    function openModal(tab) { playSound('click'); document.getElementById('modal-box').classList.add('active'); switchTab(tab); }
+    function closeModal() { playSound('click'); document.getElementById('modal-box').classList.remove('active'); }
+
+    function switchTab(tab) {
+      if(tab === 'build') {
+        document.getElementById('tab-build').style.display = 'flex';
+        document.getElementById('tab-recruit').style.display = 'none';
+        document.getElementById('tab-build-btn').classList.add('active');
+        document.getElementById('tab-recruit-btn').classList.remove('active');
+      } else {
+        document.getElementById('tab-build').style.display = 'none';
+        document.getElementById('tab-recruit').style.display = 'flex';
+        document.getElementById('tab-build-btn').classList.remove('active');
+        document.getElementById('tab-recruit-btn').classList.add('active');
+      }
+    }
+
+    function buildFacility(name, costCash, costIron) {
+      if (gameState.cash >= costCash && gameState.iron >= costIron) {
+        playSound('build');
+        gameState.cash -= costCash;
+        gameState.iron -= costIron;
+        updateUI();
+        saveGame();
+        alert(`تم بناء ${name} بنجاح!`);
+        closeModal();
+      } else {
+        alert('الموارد غير كافية لعملية البناء!');
+      }
+    }
+
+    function recruitUnit(name, costCash, costOil) {
+      if (gameState.cash >= costCash && gameState.oil >= costOil) {
+        playSound('build');
+        gameState.cash -= costCash;
+        gameState.oil -= costOil;
+        updateUI();
+        saveGame();
+        alert(`بدأ تجنيد ${name}!`);
+        closeModal();
+      } else {
+        alert('الموارد غير كافية للتجنيد!');
+      }
+    }
+
+    // تشغيل نظام الحفظ عند فتح اللعبة
+    loadGame();
+  </script>
+</body>
+</html>
